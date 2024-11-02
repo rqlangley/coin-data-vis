@@ -1,0 +1,19 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 002373037535.dkr.ecr.us-west-2.amazonaws.com
+  build:
+    commands:
+      - echo Building the Docker image...
+      - docker build -t 002373037535.dkr.ecr.us-west-2.amazonaws.com/coin-data-vis-repo:$CODEBUILD_RESOLVED_SOURCE_VERSION .
+      - docker tag 002373037535.dkr.ecr.us-west-2.amazonaws.com/coin-data-vis-repo:$CODEBUILD_RESOLVED_SOURCE_VERSION 002373037535.dkr.ecr.us-west-2.amazonaws.com/coin-data-vis-repo:latest
+  post_build:
+    commands:
+      - echo Pushing the Docker image...
+      - docker push 002373037535.dkr.ecr.us-west-2.amazonaws.com/coin-data-vis-repo:$CODEBUILD_RESOLVED_SOURCE_VERSION
+      - docker push 002373037535.dkr.ecr.us-west-2.amazonaws.com/coin-data-vis-repo:latest
+      - echo Updating the CloudFormation stack...
+      - aws cloudformation deploy           --template-file coin-data-vis-cloudformation.yaml           --stack-name coin-data-vis-stack           --capabilities CAPABILITY_NAMED_IAM           --parameter-overrides             VpcId=vpc-0d1c763f6689ab367             Subnets=subnet-04e65728486f606ac,subnet-035003df49872ec95,subnet-06312d7916f0f20eb,subnet-088575d9bdaea07e9             StreamlitImage=002373037535.dkr.ecr.us-west-2.amazonaws.com/coin-data-vis-repo:$CODEBUILD_RESOLVED_SOURCE_VERSION           --region us-west-2
