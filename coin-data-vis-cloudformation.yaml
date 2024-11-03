@@ -17,6 +17,9 @@ Resources:
     Type: AWS::ECS::Cluster
     Properties:
       ClusterName: coin-data-vis-cluster
+      Tags:
+        - Key: Application
+          Value: "coin-data-vis"
 
   StreamlitTaskDefinition:
     Type: AWS::ECS::TaskDefinition
@@ -35,6 +38,9 @@ Resources:
             - ContainerPort: 8501
               Protocol: tcp
           Essential: true
+      Tags:
+        - Key: Application
+          Value: "coin-data-vis"
 
   ECSServiceRole:
     Type: AWS::IAM::Role
@@ -51,6 +57,9 @@ Resources:
               - sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+      Tags:
+        - Key: Application
+          Value: "coin-data-vis"
 
   StreamlitService:
     Type: AWS::ECS::Service
@@ -74,6 +83,9 @@ Resources:
         - TargetGroupArn: !Ref StreamlitTargetGroup
           ContainerName: coin-data-vis-container
           ContainerPort: 8501
+      Tags:
+        - Key: Application
+          Value: "coin-data-vis"
 
   StreamlitServiceSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -85,6 +97,9 @@ Resources:
           FromPort: 8501
           ToPort: 8501
           SourceSecurityGroupId: !Ref ALBSecurityGroup
+      Tags:
+        - Key: Application
+          Value: "coin-data-vis"
 
   ALBSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -96,6 +111,9 @@ Resources:
           FromPort: 80
           ToPort: 80
           CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Application
+          Value: "coin-data-vis"
 
   StreamlitALB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
@@ -104,6 +122,9 @@ Resources:
       SecurityGroups:
         - !Ref ALBSecurityGroup
       Subnets: !Ref Subnets
+      Tags:
+        - Key: Application
+          Value: "coin-data-vis"
 
   StreamlitTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
@@ -121,6 +142,9 @@ Resources:
       UnhealthyThresholdCount: 2
       Matcher:
         HttpCode: '200'
+      Tags:
+        - Key: Application
+          Value: "coin-data-vis"
 
   StreamlitListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
@@ -131,6 +155,9 @@ Resources:
       DefaultActions:
         - Type: forward
           TargetGroupArn: !Ref StreamlitTargetGroup
+      Tags:
+        - Key: Application
+          Value: "coin-data-vis"
 
 Outputs:
   LoadBalancerDNSName:
